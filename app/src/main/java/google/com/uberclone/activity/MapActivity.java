@@ -18,6 +18,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -26,6 +27,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.text.DecimalFormat;
@@ -52,6 +54,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private int TIME = 30000;
     final Handler handler = new Handler();
     private boolean isHendler = false;
+    private LatLng mCenterLatLong;
+    private TextView txt_latlng;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +77,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
         locationManager.addGpsStatusListener(this);
 
+        txt_latlng=findViewById(R.id.txt_latlng);
     }
 
     @Override
@@ -83,6 +88,26 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             return;
         }
         mMap.setMyLocationEnabled(true);
+
+        mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+            @Override
+            public void onCameraChange(CameraPosition cameraPosition) {
+                Log.d("Camera postion change" + "", cameraPosition + "");
+                mCenterLatLong = cameraPosition.target;
+                mMap.clear();
+                try {
+
+                    Location mLocation = new Location("");
+                    mLocation.setLatitude(mCenterLatLong.latitude);
+                    mLocation.setLongitude(mCenterLatLong.longitude);
+
+                    txt_latlng.setText("Lat : " + mCenterLatLong.latitude + "," + "\nLong : " + mCenterLatLong.longitude);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
         buildApiClient();
     }
